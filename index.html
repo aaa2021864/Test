@@ -3,23 +3,45 @@
 <head>
     <title>多商品比價工具</title>
     <style>
+        <style>
+        body {
+            font-size: 16px;
+            line-height: 1.5;
+            padding: 10px;
+        }
         #product-list {
             margin-bottom: 20px;
         }
         .product-input {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             display: flex;
-            gap: 10px;
-            align-items: center;
+            flex-direction: column; /* 改為垂直排列 */
+            gap: 8px;
+            align-items: stretch; /* 讓輸入框寬度撐滿 */
         }
         .product-input label {
-            width: 80px;
-            text-align: right;
+            text-align: left; /* 文字靠左對齊 */
+            width: auto; /* 寬度自動調整 */
         }
         .product-input input[type="text"],
         .product-input input[type="number"] {
-            flex-grow: 1;
-            padding: 5px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* 包含 padding 和 border 在元素總寬度內 */
+            width: 100%; /* 寬度撐滿容器 */
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
         }
         #results-table {
             width: 100%;
@@ -28,13 +50,15 @@
         }
         #results-table th, #results-table td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 10px;
             text-align: left;
+            font-size: 14px;
         }
         #results-table th {
             background-color: #f2f2f2;
         }
     </style>
+
 </head>
 <body>
     <h1>多商品比價工具</h1>
