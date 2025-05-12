@@ -1,49 +1,128 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-    <title>簡易商品比價工具</title>
+    <title>多商品比價工具</title>
+    <style>
+        #product-list {
+            margin-bottom: 20px;
+        }
+        .product-input {
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .product-input label {
+            width: 80px;
+            text-align: right;
+        }
+        .product-input input[type="text"],
+        .product-input input[type="number"] {
+            flex-grow: 1;
+            padding: 5px;
+        }
+        #results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #results-table th, #results-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        #results-table th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
-    <h1>簡易商品比價工具</h1>
+    <h1>多商品比價工具</h1>
 
-    <div>
-        <label for="product_name">商品名稱：</label>
-        <input type="text" id="product_name"><br><br>
-
-        <label for="total_price">總金額：</label>
-        <input type="number" step="0.01" id="total_price"><br><br>
-
-        <label for="total_capacity">總容量：</label>
-        <input type="number" step="0.01" id="total_capacity"><br><br>
-
-        <button onclick="calculateUnitPrice()">計算</button>
+    <div id="product-list">
+        <div class="product-input">
+            <label for="product_name_1">商品名稱：</label>
+            <input type="text" id="product_name_1">
+            <label for="total_price_1">總金額：</label>
+            <input type="number" step="0.01" id="total_price_1">
+            <label for="total_capacity_1">總容量：</label>
+            <input type="number" step="0.01" id="total_capacity_1">
+        </div>
     </div>
 
-    <div id="result" style="margin-top: 20px;">
-        </div>
+    <button onclick="addProduct()">新增商品</button><br><br>
+    <button onclick="compareProducts()">開始比較</button>
+
+    <div id="comparison-results">
+        <table id="results-table" style="display:none;">
+            <thead>
+                <tr>
+                    <th>商品名稱</th>
+                    <th>每單位價格</th>
+                </tr>
+            </thead>
+            <tbody id="results-body">
+            </tbody>
+        </table>
+    </div>
 
     <script>
-        function calculateUnitPrice() {
-            const productName = document.getElementById("product_name").value;
-            const totalPriceInput = document.getElementById("total_price");
-            const totalCapacityInput = document.getElementById("total_capacity");
-            const resultDiv = document.getElementById("result");
+        let productCount = 1;
 
-            const totalPrice = parseFloat(totalPriceInput.value);
-            const totalCapacity = parseFloat(totalCapacityInput.value);
+        function addProduct() {
+            productCount++;
+            const productList = document.getElementById("product-list");
+            const newProductDiv = document.createElement("div");
+            newProductDiv.classList.add("product-input");
+            newProductDiv.innerHTML = `
+                <label for="product_name_${productCount}">商品名稱：</label>
+                <input type="text" id="product_name_${productCount}">
+                <label for="total_price_${productCount}">總金額：</label>
+                <input type="number" step="0.01" id="total_price_${productCount}">
+                <label for="total_capacity_${productCount}">總容量：</label>
+                <input type="number" step="0.01" id="total_capacity_${productCount}">
+            `;
+            productList.appendChild(newProductDiv);
+        }
 
-            if (isNaN(totalPrice) || isNaN(totalCapacity)) {
-                resultDiv.innerText = "請輸入有效的數字金額和容量。";
-                return;
+        function compareProducts() {
+            const products = [];
+            const resultsBody = document.getElementById("results-body");
+            resultsBody.innerHTML = ""; // 清空之前的結果
+            const resultsTable = document.getElementById("results-table");
+
+            for (let i = 1; i <= productCount; i++) {
+                const productName = document.getElementById(`product_name_${i}`).value;
+                const totalPriceInput = document.getElementById(`total_price_${i}`);
+                const totalCapacityInput = document.getElementById(`total_capacity_${i}`);
+
+                const totalPrice = parseFloat(totalPriceInput.value);
+                const totalCapacity = parseFloat(totalCapacityInput.value);
+
+                if (productName && !isNaN(totalPrice) && !isNaN(totalCapacity) && totalCapacity > 0) {
+                    const unitPrice = totalPrice / totalCapacity;
+                    products.push({ name: productName, unitPrice: unitPrice });
+                } else if (productName || !isNaN(totalPrice) || !isNaN(totalCapacity)) {
+                    alert("請確保所有商品都有輸入名稱、有效的金額和容量 (容量必須大於零)。");
+                    return;
+                }
             }
 
-            if (totalCapacity <= 0) {
-                resultDiv.innerText = "容量必須大於零，請重新輸入。";
-                return;
-            }
+            if (products.length > 0) {
+                products.sort((a, b) => a.unitPrice - b.unitPrice); // 依單價排序
 
-            const unitPrice = totalPrice / totalCapacity;
-            resultDiv.innerText = `${productName} 的每單位價格為：${unitPrice.toFixed(2)}`;
+                products.forEach(product => {
+                    const row = resultsBody.insertRow();
+                    const nameCell = row.insertCell();
+                    const priceCell = row.insertCell();
+                    nameCell.textContent = product.name;
+                    priceCell.textContent = product.unitPrice.toFixed(2);
+                });
+                resultsTable.style.display = "table";
+            } else {
+                alert("請至少輸入一個商品進行比較。");
+                resultsTable.style.display = "none";
+            }
         }
     </script>
 </body>
